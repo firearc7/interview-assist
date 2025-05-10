@@ -94,7 +94,7 @@ def display_setup_page(go_to_interview):
     with st.form("interview_config_form"):
         job_role = st.text_input("Job Role (e.g., Software Engineer, Product Manager)", placeholder="Enter the role you're applying for")
         job_description = st.text_area("Job Description", placeholder="Paste the job description here...", height=150)
-        difficulty = st.select_slider("Difficulty Level", options=["easy", "medium", "hard"], value="medium")
+        difficulty = st.select_slider("Difficulty Level", options=["Easy", "Medium", "Hard"], value="Medium")
         num_questions = st.slider("Number of Questions", min_value=3, max_value=10, value=5, step=1)
         
         # Using form_submit_button instead of regular button with callback
@@ -121,83 +121,137 @@ def display_setup_page(go_to_interview):
                 
                 if st.session_state.questions:
                     st.success(f"Generated {len(st.session_state.questions)} questions for your interview!")
-                    # Move the button outside the form
-                    st.button("Start Interview", on_click=go_to_interview, use_container_width=True)
+                    # Button to start interview, appears after questions are generated
+                    if st.button("Start Interview", on_click=go_to_interview, use_container_width=True, key="start_interview_main_button"):
+                        pass # Callback handles navigation
                 else:
                     st.error("Failed to generate questions. Please try again.")
 
 def display_interview_page(go_to_results):
     st.title("Interview Simulation")
-    
-    # Display progress
+
     total_questions = len(st.session_state.questions)
     current_idx = st.session_state.current_question_idx
-    
-    # Display progress bar
+
+    if not st.session_state.questions:
+        st.error("No questions loaded. Please go back to setup.")
+        if st.button("Back to Setup"):
+            st.session_state.page = "setup"
+            st.rerun()
+        return
+
     progress_text = f"Question {current_idx + 1} of {total_questions}"
     progress_percentage = (current_idx + 1) / total_questions
     st.progress(progress_percentage, text=progress_text)
-    
-    # Get current question
+
     current_question = st.session_state.questions[current_idx]
-    
-    # Display question
     st.markdown(f"### Question: {current_question}")
-    
-    # Response input area
-    with st.form("response_form"):
-        response = st.text_area("Your Answer", height=150, placeholder="Type your answer here...", key=f"response_{current_idx}")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            submit_button = st.form_submit_button("Submit Answer", use_container_width=True)
-        
-        with col2:
-            if current_idx > 0:
-                back_button = st.form_submit_button("Previous Question", use_container_width=True)
-            else:
-                back_button = False
-    
-    # Process form submission (outside the form)
-    if submit_button and response:
-        # Process response
-        with st.spinner("Evaluating your response..."):
-            # Evaluate the response using the existing module
-            feedback = evaluation_module.evaluate_response(
-                current_question, 
-                response, 
-                st.session_state.interview_config
+
+    is_previously_answered = current_idx < len(st.session_state.responses) and st.session_state.responses[current_idx] is not None
+
+    # Callbacks for navigation buttons
+    def _go_next_question_page():
+        if st.session_state.current_question_idx < total_questions - 1:
+            st.session_state.current_question_idx += 1
+        # Streamlit handles rerun via on_click
+
+    def _go_prev_question_page():
+        if st.session_state.current_question_idx > 0:
+            st.session_state.current_question_idx -= 1
+        # Streamlit handles rerun via on_click
+
+    if is_previously_answered:
+        st.markdown("---")
+        st.markdown("#### Your Answer:")
+        st.text_area(
+            label="Previously Submitted Answer",
+            value=st.session_state.responses[current_idx],
+            height=150,
+            disabled=True,
+            key=f"displayed_response_{current_idx}"
+        )
+
+        if current_idx < len(st.session_state.feedback) and st.session_state.feedback[current_idx]:
+            feedback = st.session_state.feedback[current_idx]
+            st.markdown("---")
+            st.markdown("#### Feedback for This Answer:")
+            
+            score = feedback.get('score', 'N/A')
+            strengths = feedback.get('strengths', 'N/A')
+            areas_for_improvement = feedback.get('areas_for_improvement', 'N/A')
+            sample_answer = feedback.get('sample_answer', 'N/A')
+
+            score_display = str(score)
+            try:
+                score_val = float(score)
+                score_display = f"{score_val:.1f} / 10"
+            except (ValueError, TypeError):
+                pass # score_display remains as is
+
+            st.info(f"**Score**: {score_display}")
+            st.success(f"**Strengths**: {strengths}")
+            st.warning(f"**Areas for Improvement**: {areas_for_improvement}")
+            with st.expander("View Sample Answer"):
+                st.markdown(sample_answer)
+        else:
+            st.info("Feedback for this question is not available.")
+        st.markdown("---")
+    else:  # Current question to be answered
+        with st.form("response_form"):
+            response_text = st.text_area(
+                "Your Answer",
+                height=150,
+                placeholder="Type your answer here...",
+                key=f"response_input_{current_idx}"
             )
-            
-            # Save response and feedback
-            if len(st.session_state.responses) <= current_idx:
-                st.session_state.responses.append(response)
-                st.session_state.feedback.append(feedback)
+            submit_button = st.form_submit_button("Submit Answer", use_container_width=True)
+
+        if submit_button:
+            if not response_text.strip():
+                st.warning("Please provide an answer before submitting.")
             else:
-                st.session_state.responses[current_idx] = response
+                with st.spinner("Evaluating your response..."):
+                    feedback = evaluation_module.evaluate_response(
+                        current_question,
+                        response_text,
+                        st.session_state.interview_config
+                    )
+
+                while len(st.session_state.responses) <= current_idx:
+                    st.session_state.responses.append(None)
+                while len(st.session_state.feedback) <= current_idx:
+                    st.session_state.feedback.append(None)
+
+                st.session_state.responses[current_idx] = response_text
                 st.session_state.feedback[current_idx] = feedback
-            
-            # Move to next question or results if done
+
+                if current_idx < total_questions - 1:
+                    st.session_state.current_question_idx += 1
+                    st.rerun()
+                else:
+                    go_to_results()
+                    st.rerun()
+
+    # Navigation buttons (common for both states)
+    cols = st.columns(2)
+    with cols[0]:
+        if current_idx > 0:
+            st.button("⬅️ Previous Question", on_click=_go_prev_question_page, use_container_width=True, key=f"prev_q_{current_idx}")
+        else:
+            st.write("") # Placeholder for layout consistency
+
+    with cols[1]:
+        if is_previously_answered:
             if current_idx < total_questions - 1:
-                st.session_state.current_question_idx += 1
-                st.rerun()
-            else:
-                go_to_results()
-    
-    elif back_button and current_idx > 0:
-        st.session_state.current_question_idx -= 1
-        st.rerun()
-    
-    # Display feedback for the previous question if available
-    if current_idx > 0 and len(st.session_state.feedback) >= current_idx:
-        with st.expander("Feedback for previous question", expanded=False):
-            prev_feedback = st.session_state.feedback[current_idx - 1]
-            st.markdown("### Feedback for your previous answer")
-            st.markdown(f"**Score**: {prev_feedback.get('score', 'N/A')}")
-            st.markdown(f"**Strengths**: {prev_feedback.get('strengths', 'N/A')}")
-            st.markdown(f"**Areas for Improvement**: {prev_feedback.get('areas_for_improvement', 'N/A')}")
-            st.markdown(f"**Sample Answer**: {prev_feedback.get('sample_answer', 'N/A')}")
+                st.button("Next Question ➡️", on_click=_go_next_question_page, use_container_width=True, key=f"next_q_{current_idx}")
+            else: # Last question, previously answered
+                st.button("View Results ➡️", on_click=go_to_results, use_container_width=True, key=f"results_q_{current_idx}")
+        # If not previously answered, submit button handles progression. No explicit next/results button here.
+        # Adding placeholder for consistent layout if needed, or leave as is if submit button is prominent enough.
+        else:
+            st.write("") # Placeholder for layout consistency
+
+    # The old expander for "Feedback for previous question" is removed as per requirements.
 
 def display_results_page(restart):
     st.title("Interview Results")
@@ -208,31 +262,51 @@ def display_results_page(restart):
     
     # Calculate average score
     scores = []
-    for feedback in st.session_state.feedback:
-        try:
-            score = float(feedback.get('score', 0))
-            scores.append(score)
-        except (ValueError, TypeError):
-            pass
+    valid_feedback_count = 0
+    for feedback_item in st.session_state.feedback:
+        if feedback_item: # Check if feedback_item is not None
+            try:
+                score = float(feedback_item.get('score', 0))
+                scores.append(score)
+                valid_feedback_count +=1
+            except (ValueError, TypeError):
+                pass # Ignore if score is not a valid number
     
-    if scores:
-        avg_score = sum(scores) / len(scores)
-        st.markdown(f"**Average Score**: {avg_score:.1f} / 10")
-    
+    if scores: # Recalculate avg_score based on valid feedback items
+        avg_score = sum(scores) / len(scores) if scores else 0
+        st.markdown(f"**Average Score**: {avg_score:.1f} / 10 (based on {len(scores)} evaluated questions)")
+    elif valid_feedback_count == 0 and st.session_state.questions:
+        st.markdown("**Average Score**: N/A (No valid feedback received for any question)")
+    else:
+        st.markdown("**Average Score**: N/A")
+
     # Display questions, responses and feedback
-    for i, (question, response, feedback) in enumerate(zip(
-        st.session_state.questions, 
-        st.session_state.responses, 
-        st.session_state.feedback
-    )):
+    for i in range(len(st.session_state.questions)):
+        question = st.session_state.questions[i]
+        response = st.session_state.responses[i] if i < len(st.session_state.responses) else None
+        feedback_item = st.session_state.feedback[i] if i < len(st.session_state.feedback) else None
+
         with st.expander(f"Question {i+1}: {question[:50]}...", expanded=False):
             st.markdown(f"**Question**: {question}")
-            st.markdown(f"**Your Response**: {response}")
-            st.markdown("#### Feedback")
-            st.markdown(f"**Score**: {feedback.get('score', 'N/A')}")
-            st.markdown(f"**Strengths**: {feedback.get('strengths', 'N/A')}")
-            st.markdown(f"**Areas for Improvement**: {feedback.get('areas_for_improvement', 'N/A')}")
-            st.markdown(f"**Sample Answer**: {feedback.get('sample_answer', 'N/A')}")
+            st.markdown(f"**Your Response**: {response if response else '*No answer submitted*'}")
+            
+            if feedback_item:
+                st.markdown("#### Feedback")
+                score = feedback_item.get('score', 'N/A')
+                score_display = str(score)
+                try:
+                    score_val = float(score)
+                    score_display = f"{score_val:.1f} / 10"
+                except (ValueError, TypeError):
+                    pass
+
+                st.markdown(f"**Score**: {score_display}")
+                st.markdown(f"**Strengths**: {feedback_item.get('strengths', 'N/A')}")
+                st.markdown(f"**Areas for Improvement**: {feedback_item.get('areas_for_improvement', 'N/A')}")
+                st.markdown(f"**Sample Answer**: {feedback_item.get('sample_answer', 'N/A')}")
+            else:
+                st.markdown("#### Feedback")
+                st.markdown("*Feedback not available for this question.*")
     
     # Buttons to restart or exit
     col1, col2 = st.columns(2)
