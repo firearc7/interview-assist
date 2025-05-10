@@ -38,7 +38,36 @@ The project will be organized within a `src` directory.
     *   **Responsibility**: The main entry point for the terminal-based application.
     *   **Interaction**: Initializes and starts the interview process by calling the `interview_flow.py` module.
 
-### Data Flow
-Data will be passed between these modules primarily through function arguments and return values. The `interview_flow.py` module will act as the central coordinator.
+## Phase 2: Streamlit Frontend
 
-**Goal**: To have a working command-line pipeline that simulates an interview, demonstrating the core AI-driven question generation and response evaluation capabilities.
+The second phase enhances the user experience by integrating a web-based user interface using Streamlit. This provides a more interactive and visually appealing way for users to engage with the application.
+
+### Web Interface Features
+
+* **Welcome Page**: Introduction to the application and its features
+* **Setup Page**: Input form for job role, description, and other configuration options
+* **Interview Simulation**: Interactive Q&A with real-time feedback
+* **Results Summary**: Overall performance review and detailed feedback
+
+### Running the Streamlit App
+
+1. Install the required dependencies:
+   ```
+   pip install -r requirements.txt
+   ```
+
+2. Set up your Mistral API key:
+   ```
+   export MISTRAL_API_KEY=your_api_key_here
+   ```
+
+3. Run the Streamlit application:
+   ```
+   streamlit run src/streamlit_app.py
+   ```
+
+4. Alternatively, use the main entry point:
+   ```
+   python src/main.py
+   ```
+   This will automatically detect and run the Streamlit app.
