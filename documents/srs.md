@@ -66,9 +66,6 @@ The AI Interview Simulator is a standalone web application with a microservice b
 
 ### 2.3 User Classes and Characteristics
 - **Job Seekers**: Individuals preparing for interviews
-- **Career Coaches**: Professionals assisting clients
-- **HR Professionals**: Training and assessment
-- **Educational Institutions**: Teaching professional development
 
 ### 2.4 Operating Environment
 - Web-based application (Streamlit)
