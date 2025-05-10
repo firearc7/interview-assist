@@ -259,9 +259,9 @@ The following diagram illustrates the data flow within the system:
 **Responsibility**: Handles user authentication, profile management, and authorization.
 
 **Key Components**:
-- User registration and login
+- User registration and login (defaulting to 'job_seeker' role)
 - Profile creation and update
-- Role-based access control
+- Access control distinguishing admin and job_seeker functionalities
 - OAuth integration for social login
 
 **Interfaces**:
@@ -395,7 +395,7 @@ The system uses several key data models:
   "email": "string",
   "password_hash": "string",
   "name": "string",
-  "role": "string (enum: job_seeker, coach, hr, educator)",
+  "role": "string (enum: job_seeker, admin)",
   "created_at": "datetime",
   "updated_at": "datetime"
 }
@@ -606,7 +606,7 @@ Common HTTP status codes:
 
 ### 6.1 Authentication and Authorization
 - JWT-based authentication
-- Role-based access control
+- Access control based on user role (admin vs. job_seeker)
 - OAuth integration for social login
 - Password hashing using bcrypt
 - Token refresh mechanism
