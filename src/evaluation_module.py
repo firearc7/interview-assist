@@ -86,6 +86,112 @@ def evaluate_response(question, response, config):
     print("Evaluation complete.")
     return feedback
 
+def generate_overall_performance(questions, responses, feedback, interview_config):
+    """
+    Generate overall performance analysis and suggestions based on all responses.
+    
+    Args:
+        questions (list): List of all interview questions.
+        responses (list): List of user responses to the questions.
+        feedback (list): List of feedback for each question.
+        interview_config (dict): Interview configuration.
+        
+    Returns:
+        dict: A dictionary containing overall analysis, score and suggestions.
+    """
+    print("\n--- Generating Overall Performance Analysis ---")
+    
+    # Extract scores from feedback
+    scores = []
+    strengths_list = []
+    areas_for_improvement_list = []
+    
+    for fb in feedback:
+        if fb:
+            try:
+                score = float(fb.get('score', 0))
+                scores.append(score)
+            except (ValueError, TypeError):
+                pass
+                
+            strengths = fb.get('strengths', '')
+            if strengths and strengths != 'N/A' and not strengths.startswith('Failed'):
+                strengths_list.append(strengths)
+                
+            areas = fb.get('areas_for_improvement', '')
+            if areas and areas != 'N/A' and not areas.startswith('Failed'):
+                areas_for_improvement_list.append(areas)
+    
+    # Create a summary of the interview for context
+    avg_score = sum(scores) / len(scores) if scores else 0
+    
+    # Prepare for GenAI call
+    prompt_system = (
+        "You are an expert interview coach providing an overall assessment of a candidate's "
+        "interview performance. Review all their responses and previous feedback to provide "
+        "a comprehensive analysis of their strengths and weaknesses. Focus on patterns across "
+        "answers, communication style, and expertise demonstrated. Provide specific, actionable "
+        "advice for improvement. Format your response as JSON with these keys: "
+        "'overall_analysis' (general performance assessment), 'key_strengths' (list of main strengths), "
+        "'improvement_areas' (list of areas to work on), and 'preparation_tips' (specific tips for their next interview)."
+    )
+    
+    prompt_user = (
+        f"Job Role: {interview_config.get('job_role')}\n"
+        f"Interview Difficulty: {interview_config.get('difficulty')}\n"
+        f"Average Score: {avg_score:.1f}/10\n\n"
+        "Interview Questions and Responses:\n"
+    )
+    
+    # Add questions, responses, and feedback summaries to the prompt
+    for i, (q, r) in enumerate(zip(questions, responses)):
+        if r:  # Only include questions that were answered
+            fb_summary = ""
+            if i < len(feedback) and feedback[i]:
+                fb = feedback[i]
+                fb_summary = f"[Score: {fb.get('score', 'N/A')}/10, Strengths: {fb.get('strengths', 'N/A')}, Areas for improvement: {fb.get('areas_for_improvement', 'N/A')}]"
+            
+            prompt_user += f"Q{i+1}: {q}\nResponse: {r}\nFeedback: {fb_summary}\n\n"
+    
+    prompt_user += "Please provide an overall performance analysis in the specified JSON format."
+    
+    prompt_messages = [
+        {"role": "system", "content": prompt_system},
+        {"role": "user", "content": prompt_user}
+    ]
+    
+    generated_text = generate_text(prompt_messages)
+    
+    try:
+        # Try to parse as JSON
+        if generated_text:
+            overall_analysis = json.loads(generated_text)
+            # Ensure all expected keys are present
+            overall_analysis.setdefault("overall_analysis", "Analysis could not be generated.")
+            overall_analysis.setdefault("key_strengths", ["Could not identify strengths."])
+            overall_analysis.setdefault("improvement_areas", ["Could not identify improvement areas."])
+            overall_analysis.setdefault("preparation_tips", ["Could not generate preparation tips."])
+        else:
+            overall_analysis = {
+                "overall_analysis": "Failed to generate overall analysis.",
+                "key_strengths": ["Failed to generate key strengths."],
+                "improvement_areas": ["Failed to generate improvement areas."],
+                "preparation_tips": ["Failed to generate preparation tips."]
+            }
+    except json.JSONDecodeError:
+        # If it's not valid JSON, create a dict with the raw text and placeholders
+        overall_analysis = {
+            "overall_analysis": generated_text if generated_text else "Failed to generate analysis.",
+            "key_strengths": ["Error parsing analysis output."],
+            "improvement_areas": ["Error parsing analysis output."],
+            "preparation_tips": ["Error parsing analysis output."]
+        }
+    
+    # Add numerical average score
+    overall_analysis["average_score"] = avg_score
+    
+    return overall_analysis
+
 if __name__ == '__main__':
     # Example usage (for testing this module directly)
     sample_config = {
