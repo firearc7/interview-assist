@@ -67,90 +67,75 @@ The AI Interview Simulator is a platform that allows users to practice job inter
 The AI Interview Simulator is a Streamlit web application. The frontend and backend logic are combined in a single process. The app interacts with LLM APIs for question generation and evaluation, and stores persistent data in a local SQLite database.
 
 ```
-┌───────────────────────────────────────────────┐
-│                User Browser                   │
-│         (Streamlit Web Interface)             │
-└───────────────┬───────────────────────────────┘
-                │
-                ▼
-┌───────────────────────────────────────────────┐
-│           Streamlit Application               │
-│  ┌─────────────────────────────────────────┐  │
-│  │           streamlit_app.py              │  │
-│  │ ┌───────────────┐  ┌─────────────────┐  │  │
-│  │ │ question_     │  │ evaluation_     │  │  │
-│  │ │ module.py     │  │ module.py       │  │  │
-│  │ └───────────────┘  └─────────────────┘  │  │
-│  │ ┌───────────────┐                       │  │
-│  │ │ database.py   │                       │  │
-│  │ └───────────────┘                       │  │
-│  └─────────────────────────────────────────┘  │
-└─────────────────────────┬─────────────────────┘
-                          │
-                          ▼
-                ┌────────────────────┐
-                │   SQLite Database  │
-                └────────────────────┘
++---------------------------------------------------+
+|                User Browser                       |
+|         (Streamlit Web Interface)                 |
++------------------------+--------------------------+
+                         |
+                         v
++---------------------------------------------------+
+|           Streamlit Application                   |
+|  +-------------------+  +---------------------+   |
+|  | question_module   |  | evaluation_module   |   |
+|  +-------------------+  +---------------------+   |
+|  +-------------------+                            |
+|  | database.py       |                            |
+|  +-------------------+                            |
++------------------------+--------------------------+
+                         |
+                         v
+                +---------------------+
+                |   SQLite Database   |
+                +---------------------+
 ```
 
 ### 2.2 Component Diagram
 
 ```
-┌───────────────────────────────────────────────┐
-│           Streamlit Application               │
-├───────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────┐  │
-│  │ streamlit_app.py                        │  │
-│  │  - UI rendering                         │  │
-│  │  - User/session state                   │  │
-│  │  - Orchestration                        │  │
-│  └─────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────┐  │
-│  │ database.py                             │  │
-│  │  - User CRUD                            │  │
-│  │  - Interview CRUD                       │  │
-│  └─────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────┐  │
-│  │ question_module.py                      │  │
-│  │  - LLM question generation              │  │
-│  └─────────────────────────────────────────┐  │
-│  │ evaluation_module.py                    │  │
-│  │  - LLM response evaluation              │  │
-│  └─────────────────────────────────────────┘  │
-└───────────────────────────────────────────────┘
++---------------------------------------------------+
+|           Streamlit Application                   |
++---------------------------------------------------+
+|  +-------------------+  +---------------------+   |
+|  | streamlit_app.py  |  | database.py         |   |
+|  |  - UI rendering   |  |  - User CRUD        |   |
+|  |  - Session state  |  |  - Interview CRUD   |   |
+|  |  - Orchestration  |  +---------------------+   |
+|  +-------------------+  +---------------------+   |
+|  | question_module.py|  | evaluation_module.py|   |
+|  |  - LLM questions  |  |  - LLM evaluation   |   |
+|  +-------------------+  +---------------------+   |
++---------------------------------------------------+
 ```
 
 ### 2.3 Deployment Diagram
 ```
-┌───────────────────────────────────┐
-│      Streamlit Cloud / Server     │
-│                                   │
-│  ┌───────────────────────────┐    │
-│  │      Streamlit App        │    │
-│  │  (streamlit_app.py +      │    │
-│  │   Python modules)         │    │
-│  └─────────────┬─────────────┘    │
-│                │                  │
-│  ┌─────────────▼─────────────┐    │
-│  │      SQLite Database      │    │
-│  │      (local file)         │    │
-│  └───────────────────────────┘    │
-│                                   │
-└───────────────────────────────────┘
++-----------------------------------------------+
+|      Streamlit Cloud / Server                 |
+|                                               |
+|  +-------------------------------+            |
+|  |      Streamlit App            |            |
+|  |  (streamlit_app.py + modules) |            |
+|  +---------------+---------------+            |
+|                  |                            |
+|  +---------------v---------------+            |
+|  |      SQLite Database          |            |
+|  |      (local file)             |            |
+|  +-------------------------------+            |
++-----------------------------------------------+
 ```
 
 ### 2.4 Data Flow Diagram
 ```
 User
- │
- ▼
+ |
+ v
 Streamlit UI (streamlit_app.py)
- │
- ├──> question_module.py (LLM API for questions)
- │
- ├──> evaluation_module.py (LLM API for feedback)
- │
- └──> database.py (SQLite for persistence)
+ |
+ +--> question_module.py (LLM API for questions)
+ |
+ +--> evaluation_module.py (LLM API for feedback)
+ |
+ +--> database.py (SQLite for persistence)
 ```
 
 ### 2.5 Class Diagram
@@ -201,18 +186,20 @@ User         Streamlit App      question_module   evaluation_module   database
  |                |                   |                 |                |
  |---login------->|                   |                 |                |
  |                |---validate------->|                 |                |
- |                |<--result----------|                 |                |
+ |                |                   |                 |                |
+ |                |<--user validated--|                 |                |
  |---setup------->|                   |                 |                |
  |                |---generate------->|                 |                |
  |                |   questions       |                 |                |
  |                |<--questions-------|                 |                |
  |---answer------>|                   |                 |                |
  |                |---evaluate------->|                 |                |
- |                |   response        |                 |                |
+ |                |                   |---evaluate----->|                |
+ |                |                   |<--feedback------|                |
  |                |<--feedback--------|                 |                |
- |                |---save----------->|                 |                |
- |                |   interview       |                 |                |
- |                |                   |                 |                |
+ |                |---save interview------------------->|                |
+ |                |<--save confirmation-----------------|                |
+ |<--results------|                   |                 |                |
 ```
 
 ## 3. Module Design
