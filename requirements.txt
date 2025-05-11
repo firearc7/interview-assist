@@ -12,6 +12,7 @@ Jinja2==3.1.6
 jsonschema==4.23.0
 jsonschema-specifications==2025.4.1
 MarkupSafe==3.0.2
+mistralai
 narwhals==1.38.2
 numpy==2.2.5
 packaging==24.2
