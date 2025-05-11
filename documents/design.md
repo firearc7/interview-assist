@@ -79,8 +79,9 @@ The document covers all aspects of the system design, including:
 The AI Interview Simulator is a comprehensive platform that allows users to practice job interviews in a realistic environment. The system generates customized interview questions based on job descriptions and user preferences, evaluates user responses in real-time, provides constructive feedback, and tracks progress over time.
 
 ### 1.4 Design Considerations
-- **Cloud-Native**: Designed to run on cloud infrastructure with scalability in mind
-- **Microservices Architecture**: Independent, loosely coupled services
+- **Current State**: Streamlit-based monolithic application with modular Python components.
+- **Cloud-Native**: Designed to run on cloud infrastructure (e.g., Streamlit Cloud) with scalability in mind for future microservices.
+- **Target Architecture**: Microservices Architecture - Independent, loosely coupled services.
 - **GenAI Integration**: Leveraging LLMs for question generation and response evaluation
 - **Security and Privacy**: Protecting user data and ensuring privacy
 - **Accessibility**: Designing for users with diverse needs and abilities
@@ -89,6 +90,8 @@ The AI Interview Simulator is a comprehensive platform that allows users to prac
 - **Observability**: Implementing comprehensive logging and monitoring for system health and performance tracking
 
 ## 2. Architecture Design
+
+**Note:** Sections 2.1 through 2.4 describe the target microservices architecture. The current implementation is a monolithic Streamlit application (`streamlit_app.py`) that orchestrates calls to various Python modules (`database.py`, `question_module.py`, `evaluation_module.py`, `config_module.py`) which handle specific tasks locally. User session data is managed using Streamlit's session state and persisted via `database.py`.
 
 ### 2.1 High-Level Architecture
 The AI Interview Simulator follows a microservices architecture pattern with a frontend service communicating with multiple backend services through RESTful APIs. The system integrates with external LLM providers for AI capabilities.
@@ -102,8 +105,8 @@ The AI Interview Simulator follows a microservices architecture pattern with a f
 │               │     │   │           │     │                │          │
 │               │     │   │  User     │     │  Interview     │          │
 │               │     │   │  Mgmt     │     │  Config        │          │
-│   Frontend    │     │   │  Service  │     │  Service       │          │
-│   Service     │─────┼──►│           │     │                │          │
+│   Frontend    │─────┼──►│  Service  │     │  Service       │          │
+│   Service     │     │   │           │     │                │          │
 │   (Streamlit) │     │   └───────────┘     └────────────────┘          │
 │               │     │                                                 │
 │               │     │   ┌───────────┐     ┌────────────────┐          │
@@ -178,6 +181,24 @@ Each microservice is composed of several internal components:
    - State Management Component
    - API Client Component
 
+**Current Implemented Components (Monolithic Structure):**
+1.  **`streamlit_app.py` (Frontend & Orchestration)**
+    *   UI rendering and user interaction
+    *   Application flow control (page navigation)
+    *   Session state management (`st.session_state`)
+    *   Coordination between modules
+2.  **`database.py` (Data Persistence Module)**
+    *   User authentication (validation, creation)
+    *   Storage and retrieval of interview history, questions, responses, feedback
+    *   SQLite database interaction
+3.  **`config_module.py` (Configuration Handling Module)**
+    *   (Currently, configuration logic is primarily within `streamlit_app.py` but this module is available for future expansion of config handling)
+4.  **`question_module.py` (Question Logic Module)**
+    *   Interfaces with LLM for question generation based on interview configuration.
+5.  **`evaluation_module.py` (Evaluation Logic Module)**
+    *   Interfaces with LLM for response evaluation and overall performance analysis.
+    *   Generates feedback structure (scores, strengths, improvements, sample answers).
+
 ### 2.3 Deployment Diagram
 The system will be deployed on cloud infrastructure with the following components:
 
@@ -201,6 +222,27 @@ The system will be deployed on cloud infrastructure with the following component
 │   └───────────┘   └───────────┘   └───────────┘           │
 │                                                           │
 └───────────────────────────────────────────────────────────┘
+```
+
+**Current Deployment (Simplified):**
+The Streamlit application (`streamlit_app.py` and its Python modules) can be deployed as a single unit, for example, on Streamlit Cloud. The SQLite database file would typically reside with the application instance or a persistent volume if configured.
+
+```
+┌───────────────────────────────────┐
+│      Streamlit Cloud / Server     │
+│                                   │
+│  ┌─────────────────────────────┐  │
+│  │      Streamlit App          │  │
+│  │  (streamlit_app.py +       │  │
+│  │   Python modules)           │  │
+│  └─────────────┬─────────────┘  │
+│                │                │
+│  ┌─────────────▼─────────────┐  │
+│  │      SQLite Database      │  │
+│  │      (local file)         │  │
+│  └─────────────────────────────┘  │
+│                                   │
+└───────────────────────────────────┘
 ```
 
 ### 2.4 Data Flow Diagram
@@ -253,7 +295,12 @@ The following diagram illustrates the data flow within the system:
                                └─────────────────┘
 ```
 
+**Current Data Flow (Simplified):**
+User interacts with Streamlit UI -> `streamlit_app.py` handles input -> Calls `question_module` (for questions) / `evaluation_module` (for feedback) -> These modules may call external LLM APIs -> Results returned to `streamlit_app.py` -> Data saved/retrieved using `database.py` -> UI updated.
+
 ## 3. Microservices Design
+
+**Note:** Sections 3.1 through 3.7 describe the *target* microservices architecture. The current system uses Python modules within a monolithic Streamlit application to achieve similar functionalities.
 
 ### 3.1 User Management Service
 **Responsibility**: Handles user authentication, profile management, and authorization.
@@ -273,6 +320,8 @@ The following diagram illustrates the data flow within the system:
 - JWT for authentication
 - PostgreSQL for user data storage
 
+**Current Implementation**: Handled by `streamlit_app.py` (UI for login/signup) and `database.py` (user creation, validation, data storage in SQLite).
+
 ### 3.2 Interview Configuration Service
 **Responsibility**: Manages the configuration of interview sessions.
 
@@ -290,6 +339,8 @@ The following diagram illustrates the data flow within the system:
 - FastAPI
 - SpaCy for NLP processing of job descriptions
 - Redis for caching configurations
+
+**Current Implementation**: Configuration (job role, description, difficulty, num_questions) is handled directly within `streamlit_app.py`. `config_module.py` exists but is minimally used.
 
 ### 3.3 Question Generation Service
 **Responsibility**: Generates relevant interview questions based on configuration.
@@ -309,6 +360,8 @@ The following diagram illustrates the data flow within the system:
 - LangChain for LLM orchestration
 - MongoDB for question bank storage
 
+**Current Implementation**: Functionality provided by `question_module.py`.
+
 ### 3.4 Response Evaluation Service
 **Responsibility**: Analyzes and evaluates user responses.
 
@@ -327,6 +380,8 @@ The following diagram illustrates the data flow within the system:
 - LangChain for evaluation logic
 - Redis for caching evaluation results
 
+**Current Implementation**: Functionality provided by `evaluation_module.py` (for individual responses and overall analysis).
+
 ### 3.5 Feedback Service
 **Responsibility**: Generates constructive feedback based on response evaluation.
 
@@ -344,6 +399,8 @@ The following diagram illustrates the data flow within the system:
 - FastAPI
 - Jinja2 for feedback template rendering
 - MongoDB for feedback data storage
+
+**Current Implementation**: Feedback generation is part of `evaluation_module.py`. Display is handled by `streamlit_app.py`.
 
 ### 3.6 Session Management Service
 **Responsibility**: Manages interview sessions and tracks user progress.
@@ -364,6 +421,8 @@ The following diagram illustrates the data flow within the system:
 - PostgreSQL for session data
 - Redis for session state caching
 
+**Current Implementation**: Active session state managed by `st.session_state` in `streamlit_app.py`. Persistent interview history managed by `database.py`.
+
 ### 3.7 Frontend Service
 **Responsibility**: Provides the user interface for the application.
 
@@ -382,6 +441,8 @@ The following diagram illustrates the data flow within the system:
 - Streamlit for rapid UI development
 - React for advanced UI components (optional)
 - Chart.js for data visualization
+
+**Current Implementation**: This is `streamlit_app.py`.
 
 ## 4. Database Design
 
@@ -497,28 +558,96 @@ The system uses several key data models:
 }
 ```
 
+The system uses the following key data models, currently stored in an SQLite database via `database.py`:
+
+**User Model (`users` table):**
+```json
+{
+  "id": "integer (PRIMARY KEY)",
+  "username": "string (UNIQUE)",
+  "email": "string (UNIQUE)",
+  "password_hash": "string",
+  "created_at": "datetime"
+}
+```
+
+**Interview Model (`interviews` table):**
+```json
+{
+  "id": "integer (PRIMARY KEY)",
+  "user_id": "integer (FOREIGN KEY to users.id)",
+  "job_role": "string",
+  "job_description": "text",
+  "difficulty": "string",
+  "overall_score": "float (nullable)",
+  "overall_feedback": "text (JSON string, nullable)",
+  "created_at": "datetime"
+}
+```
+
+**InterviewQuestion Model (`interview_questions` table):**
+```json
+{
+  "id": "integer (PRIMARY KEY)",
+  "interview_id": "integer (FOREIGN KEY to interviews.id)",
+  "question_text": "text",
+  "question_order": "integer"
+}
+```
+*(Note: In the current `database.py`, questions are stored as a JSON list in the `interviews` table rather than a separate table. This model represents a more normalized approach if questions were in a separate table as implied by the prompt, or how it might be if `save_interview` stored them separately. The current `streamlit_app.py` saves them as a list.)*
+**Correction based on `streamlit_app.py` and typical `database.save_interview` patterns:** Questions, responses, and feedback are often stored as JSON arrays/lists associated with the main interview record.
+
+**Revised Interview Model reflecting JSON storage for Q/R/F:**
+The `interviews` table stores questions, responses, and feedback as JSON strings.
+The `database.py` module likely has:
+- `users` table (id, username, email, password_hash, created_at)
+- `interviews` table (id, user_id, job_role, job_description, difficulty, questions (TEXT/JSON), responses (TEXT/JSON), feedback (TEXT/JSON), overall_feedback (TEXT/JSON), overall_score (REAL), created_at)
+
+*(The following Question, Response, Feedback models describe the structure of objects within the JSON lists stored in the `interviews` table)*
+
+**Question (within JSON list):**
+```json
+"string (question text)"
+```
+
+**Response (within JSON list):**
+```json
+"string (user's answer text, or null if not answered)"
+```
+
+**Feedback Item (within JSON list, corresponds to a question/response):**
+```json
+{
+  "score": "float | string ('N/A')",
+  "strengths": "string",
+  "areas_for_improvement": "string",
+  "sample_answer": "string"
+  // Potentially other fields from evaluation_module
+}
+```
+*(Profile Model is not explicitly implemented yet)*
+
 ### 4.2 Database Schema
-The system will use a combination of relational (PostgreSQL) and document (MongoDB) databases:
+The system currently uses an **SQLite** database. The schema is defined and managed by `database.py` and includes tables like:
+-   **`users`**: Stores user credentials and information.
+-   **`interviews`**: Stores details of each interview session, including configuration, overall results, and JSON lists for questions, user responses, and individual feedback items.
+    *   `id`, `user_id`, `job_role`, `job_description`, `difficulty`
+    *   `questions`: TEXT (stores JSON array of question strings)
+    *   `responses`: TEXT (stores JSON array of response strings)
+    *   `feedback`: TEXT (stores JSON array of feedback objects)
+    *   `overall_feedback`: TEXT (stores JSON object of overall analysis)
+    *   `overall_score`: REAL
+    *   `created_at`
 
-**PostgreSQL**:
-- Users
-- Profiles
-- Interview Configurations
-- Sessions
-
-**MongoDB**:
-- Questions
-- Responses
-- Feedback
-- Question Bank
+*(MongoDB is not currently used.)*
 
 ### 4.3 Data Storage Considerations
-- User data will be stored in a relational database for ACID compliance
-- Question and feedback data will be stored in a document database for flexibility
-- Session state will be cached in Redis for performance
-- File storage (transcripts, recordings) will use cloud object storage
+- User data and interview history are stored in a local SQLite database.
+- Sensitive information like passwords are hashed.
 
 ## 5. API Design
+
+**Note:** Sections 5.1 through 5.3 describe REST APIs for the *target* microservices architecture. The current monolithic Streamlit application uses direct function calls between its components and modules, not REST APIs for internal communication.
 
 ### 5.1 API Endpoints
 
@@ -605,12 +734,9 @@ Common HTTP status codes:
 ## 6. Security Design
 
 ### 6.1 Authentication and Authorization
-- JWT-based authentication
-- Access control based on user role (admin vs. job_seeker)
-- OAuth integration for social login
-- Password hashing using bcrypt
-- Token refresh mechanism
-- Session timeout and invalidation
+- Current: User authentication is handled via username/password, validated against the SQLite database (`users` table) by `database.py`. User session is managed by Streamlit's session state.
+- No explicit role-based authorization (admin vs. job_seeker) is implemented beyond user login.
+- Target: JWT-based authentication for microservices.
 
 ### 6.2 Data Protection
 - HTTPS for all communications
@@ -632,33 +758,41 @@ Common HTTP status codes:
 ### 7.1 UI Components
 The frontend will be built with Streamlit and will include the following components:
 
-**Landing Page**:
-- User authentication
-- Dashboard with session history
-- Quick start options
+**Welcome Page**:
+- Introduction and "How it works".
+- Login/Signup buttons (if not logged in).
+- Start Interview / View History buttons (if logged in).
 
-**Interview Setup**:
+**Login Page**: Form for username and password.
+**Signup Page**: Form for username, email, password, confirm password.
+
+**Dashboard Page (Interview History)**:
+- Lists completed interviews (role, difficulty, date, score).
+- Button to start a new interview.
+- Button to view details of a past interview.
+
+**Interview History Detail Page**:
+- Displays full results of a selected past interview (summary, overall analysis, Q&A with feedback).
+
+**Interview Setup Page**:
 - Job description input
 - Interview configuration
 - Difficulty and duration selection
+- Number of questions selection.
 
-**Interview Simulation**:
+**Interview Simulation Page**:
+- Progress bar.
 - Question display
 - Response input (text-based)
-- Progress indicator
 - Option to pause/resume
+- Navigation for previously answered questions (displays answer and feedback).
 
-**Feedback View**:
-- Response evaluation
-- Detailed feedback
-- Sample answers
-- Improvement suggestions
-
-**History and Progress**:
-- Session history
-- Performance trends
-- Downloadable transcripts
-- Bookmarked questions
+**Results Page**:
+- Interview summary (role, difficulty).
+- Average score.
+- Overall performance analysis (strengths, areas for improvement, tips).
+- Expandable sections for each question, showing the question, user's response, and detailed feedback.
+- Buttons to start a new interview or go to dashboard.
 
 ### 7.2 User Flow Diagrams
 The main user flows are:
@@ -795,6 +929,9 @@ The system will be deployed to cloud platforms:
 - Cloud object storage
 - CDN for static assets
 
+- Current: The Streamlit application is suitable for deployment on platforms like Streamlit Cloud. The SQLite database would be part of the deployed application package.
+- Target: Microservices deployed on platforms like Render.com, with managed database services.
+
 ### 10.3 CI/CD Pipeline
 A CI/CD pipeline will be implemented using:
 - GitHub Actions for automation
@@ -852,21 +989,27 @@ Advanced coaching features will offer:
 
 ### 13.1 Technology Stack
 
-**Backend**:
+**Core Application (Current)**:
+- Language: Python 3.x
+- Frontend & Orchestration: Streamlit
+- Database: SQLite (via `database.py`)
+- Modules for specific logic: `question_module.py`, `evaluation_module.py` (likely using an LLM SDK like `mistralai` or `openai`)
+
+**Target Microservices Backend**:
 - Language: Python 3.10+
 - Frameworks: FastAPI, LangChain
 - Databases: PostgreSQL, MongoDB, Redis
 - Authentication: JWT, OAuth
 
-**Frontend**:
-- Framework: Streamlit
+**Target Frontend**:
+- Framework: Streamlit (can act as a frontend to microservices)
 - UI Libraries: Streamlit Components, React (optional)
 - Data Visualization: Chart.js, Plotly
 
-**DevOps**:
+**Target DevOps**:
 - Containerization: Docker
 - CI/CD: GitHub Actions
-- Cloud: Render.com, Streamlit Cloud
+- Cloud: Render.com (for microservices), Streamlit Cloud (for frontend)
 - Monitoring: Prometheus, Grafana, ELK Stack (or cloud equivalents)
 - Distributed Tracing: OpenTelemetry
 
@@ -878,19 +1021,19 @@ Advanced coaching features will offer:
 ### 13.2 Development Timeline
 The development will follow a three-phase approach:
 
-**Phase 1 (Days 1-2): Terminal-Based Prototype**
+**Phase 1 (Completed): Terminal-Based Prototype**
 - Implement core modules as Python scripts
 - Create basic question generation and evaluation
 - Develop command-line interface
 - Set up initial data models
 
-**Phase 2 (Day 2-3): Streamlit Frontend**
-- Develop Streamlit UI components
-- Integrate terminal-based modules
-- Implement basic session management
-- Add simple persistent storage
+**Phase 2 (Largely Implemented): Streamlit Frontend**
+- Develop Streamlit UI components for all user flows (Welcome, Auth, Setup, Interview, Results, Dashboard, History).
+- Integrate Python modules for question generation, evaluation, and database interaction.
+- Implement user authentication and session management using Streamlit session state and SQLite.
+- Implement interview history persistence and display.
 
-**Phase 3 (Day 3): Microservices and Cloud Deployment**
+**Phase 3 (Next Steps/Future): Microservices and Cloud Deployment**
 - Refactor modules into microservices
 - Set up FastAPI endpoints
 - Deploy to Render.com
@@ -902,12 +1045,10 @@ The development will follow a three-phase approach:
 **Development Team**:
 - 2 developers with Python and GenAI experience
 
-**Cloud Resources**:
-- Render.com free tier or hobby plan
-- Streamlit Cloud free account
-- MongoDB Atlas free tier
-- Supabase free tier
-- LLM API credits (OpenAI, Anthropic)
+**Cloud Resources (Current & Future)**:
+- Streamlit Cloud (for current app deployment).
+- LLM API credits (e.g., Mistral, OpenAI).
+- Future: Render.com or similar for microservices, managed PostgreSQL/MongoDB.
 
 **Development Tools**:
 - GitHub repository

@@ -49,6 +49,14 @@ The second phase enhances the user experience by integrating a web-based user in
 * **Interview Simulation**: Interactive Q&A with real-time feedback
 * **Results Summary**: Overall performance review and detailed feedback
 
+### How the Streamlit App Works
+
+1.  **Setup**: Enter your target job role, job description, and difficulty level.
+2.  **Interview**: Answer questions generated based on your configuration.
+3.  **Feedback**: Receive detailed evaluation and suggestions for improvement.
+
+Your responses are evaluated using advanced AI to provide constructive feedback!
+
 ### Running the Streamlit App
 
 1. Install the required dependencies:

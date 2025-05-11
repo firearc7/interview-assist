@@ -35,10 +35,13 @@ The purpose of this Software Requirements Specification (SRS) is to define the r
 
 ### 1.2 Scope
 The AI Interview Simulator will provide:
-- Text-based interview simulation (with potential for voice interaction)
-- Customizable interview environments
+- Text-based interview simulation
+- Customizable interview environments (job role, job description, difficulty, number of questions)
 - Performance evaluation and feedback
-- Session history and progress tracking
+- Session history and progress tracking (for logged-in users)
+- User authentication (username/password)
+
+Potential future enhancements include voice interaction and more advanced customization.
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 - **AI**: Artificial Intelligence
@@ -54,15 +57,18 @@ This document describes the system’s intended features, constraints, and inter
 ## 2. Overall Description
 
 ### 2.1 Product Perspective
-The AI Interview Simulator is a standalone web application with a microservice backend architecture, integrating AI/ML components for question generation and answer evaluation.
+The AI Interview Simulator is currently a standalone web application built with Streamlit. It utilizes Python modules for core functionalities like question generation, evaluation, and database interactions. The long-term vision includes refactoring into a microservice backend architecture.
 
 ### 2.2 Product Functions
-- Role/interview configuration
+- User authentication (signup, login, logout)
+- Role/interview configuration (job role, description, difficulty, number of questions)
 - Dynamic question generation
 - Real-time answer evaluation
 - Feedback delivery (immediate or delayed)
-- Session management and progress tracking
-- Optional voice and video interaction
+- Session management and progress tracking (view past interviews and results)
+- Database storage for user accounts and interview history
+
+Optional voice and video interaction are planned for future phases.
 
 ### 2.3 User Classes and Characteristics
 - **Job Seekers**: Individuals preparing for interviews
@@ -73,13 +79,14 @@ The AI Interview Simulator is a standalone web application with a microservice b
 - Cloud-based backend (AWS, GCP, or Azure)
 
 ### 2.5 Design and Implementation Constraints
-- Microservice architecture
-- LLM integration via API
+- Current: Monolithic Streamlit application with modular Python components.
+- Future: Microservice architecture.
+- LLM integration via API (handled by backend modules).
 - Compliance with accessibility standards (WCAG 2.1)
 
 ### 2.6 User Documentation
 - User manual
-- Online help and FAQs#### 3.2.5 Accessibility
+- Online help and FAQs
 - Screen reader compatibility
 - Keyboard navigation
 - Color contrast and adjustable text size
@@ -96,26 +103,27 @@ The AI Interview Simulator is a standalone web application with a microservice b
 ### 3.1 Functional Requirements
 
 #### 3.1.1 Interview Setup
-- Users can select predefined fields.
-- Users can upload job descriptions for tailored questions.
-- Users can configure interview difficulty, duration, interviewer personality, and question type focus.
+- Users can input job role and job description.
+- Users can configure interview difficulty and number of questions.
 
 #### 3.1.2 Interview Simulation
 - System generates questions dynamically based on configuration.
-- Progressive difficulty and follow-up questions based on user performance.
 - Real-time analysis of user responses.
-- Support for free-form text input and interruption handling.
+- Support for free-form text input.
+- Users can navigate between answered questions to review responses and feedback.
 
 #### 3.1.3 Feedback System
-- Real-time or delayed evaluation of answers.
-- Scoring on clarity, relevance, confidence, and depth.
-- Identification of strengths, weaknesses, and missing key points.
+- Real-time evaluation of answers during the interview.
+- Scoring of responses.
+- Identification of strengths and areas for improvement.
 - Constructive feedback and sample ideal answers.
+- Overall performance analysis after completing all questions.
 
 #### 3.1.4 Session Management
-- Session history storage and progress tracking.
-- Downloadable transcripts.
-- Ability to pause/resume sessions and bookmark questions.
+- User accounts with signup and login.
+- Session history storage for logged-in users.
+- Ability to view past interview details and overall performance.
+- Progress tracking through a dashboard displaying completed interviews.
 
 #### 3.1.5 Advanced Features (Optional/Future)
 - Voice interaction (speech input/output, tone analysis)
@@ -151,9 +159,9 @@ The AI Interview Simulator is a standalone web application with a microservice b
 - None (web-based, standard devices)
 
 ### 4.3 Software Interfaces
-- LLM provider API
-- Cloud storage APIs
-- Authentication (OAuth, email/password)
+- LLM provider API (abstracted by Python modules)
+- Local SQLite database for user and interview data storage
+- Authentication via username and password
 
 ### 4.4 Communication Interfaces
 - HTTPS for all client-server and API communications
