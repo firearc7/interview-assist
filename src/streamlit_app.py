@@ -73,7 +73,7 @@ def main():
     
     # Page routing
     if st.session_state.page == "welcome":
-        display_welcome_page(go_to_setup, go_to_login, go_to_signup)
+        display_welcome_page(go_to_setup, go_to_login, go_to_signup, go_to_dashboard)
     
     elif st.session_state.page == "login":
         display_login_page(go_to_dashboard)
@@ -121,7 +121,7 @@ def display_navbar():
     
     st.divider()
 
-def display_welcome_page(go_to_setup, go_to_login, go_to_signup):
+def display_welcome_page(go_to_setup, go_to_login, go_to_signup, go_to_dashboard):
     st.title("Welcome to the AI Interview Simulator")
     
     st.markdown("""
