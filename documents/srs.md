@@ -57,18 +57,15 @@ This document describes the system’s intended features, constraints, and inter
 ## 2. Overall Description
 
 ### 2.1 Product Perspective
-The AI Interview Simulator is currently a standalone web application built with Streamlit. It utilizes Python modules for core functionalities like question generation, evaluation, and database interactions. The long-term vision includes refactoring into a microservice backend architecture.
+The AI Interview Simulator is a standalone web application built with Streamlit. It uses Python modules for question generation, evaluation, and database interactions. All logic is contained in a monolithic Streamlit app, with session state managed by Streamlit and persistent data stored in a local SQLite database.
 
 ### 2.2 Product Functions
 - User authentication (signup, login, logout)
-- Role/interview configuration (job role, description, difficulty, number of questions)
-- Dynamic question generation
-- Real-time answer evaluation
-- Feedback delivery (immediate or delayed)
+- Interview configuration (job role, job description, difficulty, number of questions)
+- Dynamic question generation (via LLM)
+- Real-time answer evaluation and feedback (via LLM)
 - Session management and progress tracking (view past interviews and results)
 - Database storage for user accounts and interview history
-
-Optional voice and video interaction are planned for future phases.
 
 ### 2.3 User Classes and Characteristics
 - **Job Seekers**: Individuals preparing for interviews
@@ -76,25 +73,20 @@ Optional voice and video interaction are planned for future phases.
 ### 2.4 Operating Environment
 - Web-based application (Streamlit)
 - Desktop and mobile browsers
-- Cloud-based backend (AWS, GCP, or Azure)
+- Local or cloud-hosted SQLite backend
 
 ### 2.5 Design and Implementation Constraints
-- Current: Monolithic Streamlit application with modular Python components.
-- Future: Microservice architecture.
-- LLM integration via API (handled by backend modules).
-- Compliance with accessibility standards (WCAG 2.1)
+- Monolithic Streamlit application with modular Python components
+- LLM integration via API (handled by backend modules)
+- Accessibility: basic Streamlit accessibility features
 
 ### 2.6 User Documentation
 - User manual
 - Online help and FAQs
-- Screen reader compatibility
-- Keyboard navigation
-- Color contrast and adjustable text size
 
 ### 2.7 Assumptions and Dependencies
 - Reliable internet connection
 - Availability of LLM provider APIs
-- Cloud infrastructure for deployment
 
 ---
 
@@ -133,19 +125,19 @@ Optional voice and video interaction are planned for future phases.
 ### 3.2 Non-functional Requirements
 
 #### 3.2.1 Performance
-- Low response time
-- Support for multiple users
+- Low response time (subject to LLM API latency)
+- Support for multiple users (within Streamlit session limits)
 
 #### 3.2.2 Security
-- Encrypted data storage
+- Encrypted password storage (hashed in SQLite)
 - Privacy-preserving data handling
 
 #### 3.2.3 Reliability
-- High uptime
+- High uptime (subject to hosting platform)
 - Error logging
 
 #### 3.2.4 Scalability
-- Scalable architecture
+- Limited by Streamlit and SQLite; not horizontally scalable in current form
 
 ---
 
@@ -164,15 +156,15 @@ Optional voice and video interaction are planned for future phases.
 - Authentication via username and password
 
 ### 4.4 Communication Interfaces
-- HTTPS for all client-server and API communications
+- HTTPS for all client-server and API communications (if deployed on secure hosting)
 
 ---
 
 ## 5. Other Requirements
 
-- Agile development methodology, equipped with pair programming
-- Unit, integration, and user acceptance testing
-- Continuous integration and deployment
+- Agile development methodology
+- Unit and integration testing
+- Continuous integration and deployment (if configured)
 - Regular maintenance and updates
 
 ---
@@ -185,10 +177,12 @@ Optional voice and video interaction are planned for future phases.
 ### 6.2 Evaluation Rubrics
 - Technical accuracy, communication, problem-solving, professional presence
 
-### 6.3 Integration Specifications
-- API documentation templates
-- Data schema definitions
-- Service interaction protocols
+### 6.3 Data Model (Current Implementation)
+- **users** table: id, username, email, password_hash, created_at
+- **interviews** table: id, user_id, job_role, job_description, difficulty, questions (JSON), responses (JSON), feedback (JSON), overall_feedback (JSON), overall_score, created_at
+  - questions: JSON array of question strings
+  - responses: JSON array of user answer strings (or null)
+  - feedback: JSON array of objects with score, strengths, areas_for_improvement, sample_answer
 
 ---
 
