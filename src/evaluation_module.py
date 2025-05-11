@@ -4,7 +4,7 @@ Evaluates user responses and provides feedback using GenAI.
 import json
 
 # Placeholder for GenAI integration
-from genai_client import generate_text
+from src.genai_client import generate_text # Adjusted import
 
 def parse_feedback_from_text(text_feedback):
     """

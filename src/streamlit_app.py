@@ -2,10 +2,10 @@
 Streamlit frontend for the AI Interview Simulator.
 """
 import streamlit as st
-import config_module
-import question_module
-import evaluation_module
-import database
+from src import config_module # Adjusted import
+from src import question_module
+from src import evaluation_module
+from src import database
 import json
 from datetime import datetime
 

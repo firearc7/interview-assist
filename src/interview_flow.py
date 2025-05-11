@@ -1,9 +1,9 @@
 """
 Orchestrates the terminal-based interview flow.
 """
-import config_module
-import question_module
-import evaluation_module
+from src import config_module
+from src import question_module
+from src import evaluation_module
 
 def start_interview():
     """
@@ -41,7 +41,6 @@ def start_interview():
         
         if i < len(questions) - 1:
             input("\nPress Enter to continue to the next question...")
-
 
     print("\n--- Interview Finished ---")
     print("Thank you for using the AI Interview Simulator!")

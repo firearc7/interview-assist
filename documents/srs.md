@@ -164,6 +164,10 @@ The AI Interview Simulator is a standalone web application built with Streamlit.
 
 - Agile development methodology
 - Unit and integration testing
+  - Comprehensive test suite using Python's unittest framework
+  - Test coverage for core modules (database, question generation, evaluation)
+  - Automated test execution via `python3 -m unittest discover -v`
+  - Mock testing for LLM API dependencies
 - Continuous integration and deployment (if configured)
 - Regular maintenance and updates
 

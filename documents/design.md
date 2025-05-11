@@ -113,8 +113,7 @@ The AI Interview Simulator is a Streamlit web application. The frontend and back
 │  ┌─────────────────────────────────────────┐  │
 │  │ question_module.py                      │  │
 │  │  - LLM question generation              │  │
-│  └─────────────────────────────────────────┘  │
-│  ┌─────────────────────────────────────────┐  │
+│  └─────────────────────────────────────────┐  │
 │  │ evaluation_module.py                    │  │
 │  │  - LLM response evaluation              │  │
 │  └─────────────────────────────────────────┘  │
@@ -157,40 +156,40 @@ Streamlit UI (streamlit_app.py)
 ### 2.5 Class Diagram
 
 ```
-+-------------------+
-|   User            |
-+-------------------+
-| - id: int         |
-| - username: str   |
-| - email: str      |
-| - password_hash: str |
-| - created_at: dt  |
-+-------------------+
++-----------------------+
+|   User                |
++-----------------------+
+| - id: int             |
+| - username: str       |
+| - email: str          |
+| - password_hash: str  |
+| - created_at: dt      |
++-----------------------+
 
-+-------------------+
-|   Interview       |
-+-------------------+
-| - id: int         |
-| - user_id: int    |
-| - job_role: str   |
-| - job_description: str |
-| - difficulty: str |
-| - questions: list[str] |
-| - responses: list[str] |
++----------------------------+
+|   Interview                |
++----------------------------+
+| - id: int                  |
+| - user_id: int             |
+| - job_role: str            |
+| - job_description: str     |
+| - difficulty: str          |
+| - questions: list[str]     |
+| - responses: list[str]     |
 | - feedback: list[Feedback] |
-| - overall_feedback: dict |
-| - overall_score: float   |
-| - created_at: dt         |
-+-------------------+
+| - overall_feedback: dict   |
+| - overall_score: float     |
+| - created_at: dt           |
++----------------------------+
 
-+-------------------+
-|   Feedback        |
-+-------------------+
-| - score: float/str|
-| - strengths: str  |
++------------------------------+
+|   Feedback                   |
++------------------------------+
+| - score: float/str           |
+| - strengths: str             |
 | - areas_for_improvement: str |
 | - sample_answer: str         |
-+-------------------+
++------------------------------+
 ```
 
 ### 2.6 Sequence Diagram
@@ -314,8 +313,41 @@ User         Streamlit App      question_module   evaluation_module   database
 
 ## 8. Testing Strategy
 
-- Unit and integration tests for Python modules (if implemented)
-- Manual UI testing
+The project implements a comprehensive testing strategy using Python's unittest framework:
+
+### 8.1 Test Organization
+
+- Tests are located in the `tests` directory, mirroring the structure of the `src` directory
+- Each module in `src` has a corresponding test file in `tests` (e.g., `database.py` → `test_database.py`)
+
+### 8.2 Test Types
+
+- **Unit Tests**: Testing individual functions and classes in isolation
+- **Integration Tests**: Testing the interaction between components (e.g., database operations)
+- **Mock Tests**: Using unittest.mock to substitute external dependencies (especially LLM API calls)
+
+### 8.3 Test Execution
+
+Tests can be run using the following command:
+```bash
+python3 -m unittest discover -v
+```
+
+This discovers and runs all test files in the project, with verbose output showing each test execution.
+
+### 8.4 Test Coverage Areas
+
+- Database operations (CRUD for users, interviews, etc.)
+- Question generation logic and LLM integration
+- Response evaluation and feedback generation
+- Streamlit UI state management
+- API error handling and fallback mechanisms
+
+### 8.5 Manual Testing
+
+- Streamlit UI functionality and flow testing
+- Cross-browser compatibility testing
+- User experience assessment
 
 ## 9. Deployment Strategy
 

@@ -79,3 +79,31 @@ Your responses are evaluated using advanced AI to provide constructive feedback!
    python src/main.py
    ```
    This will automatically detect and run the Streamlit app.
+
+## Testing
+
+The project uses Python's unittest framework for testing modules and components. Tests are organized in the `tests` directory, mirroring the structure of the `src` directory.
+
+### Running Tests
+
+To run the test suite:
+
+```bash
+python3 -m unittest discover -v
+```
+
+This command will:
+- Automatically discover all test files (matching pattern `test_*.py`) in the project
+- Run all tests with verbose output (`-v`) showing each test case and its result
+- Display a summary of passed, failed, and error tests
+
+### Test Coverage
+
+The test suite includes:
+- **Unit tests**: Testing individual modules (`database.py`, `question_module.py`, `evaluation_module.py`, etc.)
+- **Integration tests**: Testing interactions between components
+- **Mock tests**: Using unittest.mock to simulate API responses and isolate components
+
+### Adding New Tests
+
+When adding new features, please include corresponding tests in the `tests` directory following the naming convention `test_*.py`.
