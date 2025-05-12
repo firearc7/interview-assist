@@ -1,109 +1,97 @@
-# interview-assist
+# Interview Assist
 
-## Project Overview
-Interview Assist is an AI-powered platform designed to help users prepare for job interviews by simulating realistic interview scenarios, providing customized questions, evaluating responses, and offering constructive feedback.
+Interview Assist is an interactive, AI-powered platform designed to help users prepare for job interviews. It simulates realistic interview scenarios, provides customized questions, evaluates responses in real-time, and offers constructive feedback to help users improve their interviewing skills.
 
-This project will be developed in phases:
-1.  **Phase 1: Terminal-Based Modular System**: A functional command-line version with core logic.
-2.  **Phase 2: Streamlit Frontend**: Integration with a web-based UI using Streamlit.
-3.  **Phase 3: Microservices and Cloud Deployment**: Refactoring into a full microservices architecture and deploying to the cloud.
+## About The Project
 
-## Phase 1: Terminal-Based Modular System
+This tool aims to provide a comprehensive practice environment for job seekers.
 
-This initial phase focuses on building the core logic of the Interview Assist application as a terminal-based program. The system will be split into independent Python modules, simulating a microservices-style architecture through function calls. Each module will be focused on a specific task and will leverage Generative AI where appropriate.
+**Key Features:**
 
-### Modules
+*   **Customizable Interviews:** Configure interviews based on target job role, job description, difficulty level, and number of questions.
+*   **Dynamic Question Generation:** Leverages Large Language Models (LLMs) to generate relevant interview questions.
+*   **Real-time Response Evaluation:** User answers are evaluated by an LLM, providing instant feedback.
+*   **Constructive Feedback:** Receive detailed feedback including scores, strengths, areas for improvement, and sample answers.
+*   **Overall Performance Analysis:** Get a summary of your performance after completing an interview session.
+*   **User Authentication & History:** Registered users can track their progress, view past interviews, and analyze their performance over time.
 
-The project will be organized within a `src` directory.
+**Technology Stack:**
 
-*   **`src/config_module.py`**:
-    *   **Responsibility**: Handles user input for interview configuration (e.g., job role, job description, difficulty level).
-    *   **Interaction**: Provides configuration data to other modules.
+*   **Frontend:** Streamlit
+*   **Backend Logic:** Python
+*   **AI/LLM Integration:** Python modules interacting with LLM APIs (e.g., Mistral AI, OpenAI)
+*   **Database:** SQLite for user accounts and interview history
 
-*   **`src/question_module.py`**:
-    *   **Responsibility**: Generates interview questions based on the provided configuration.
-    *   **GenAI Integration**: Uses a Large Language Model (LLM) to create relevant and dynamic questions.
-    *   **Interaction**: Receives configuration from `config_module.py` (via `interview_flow.py`) and provides questions to the interview flow.
+## Getting Started
 
-*   **`src/evaluation_module.py`**:
-    *   **Responsibility**: Evaluates the user's responses to interview questions and generates constructive feedback.
-    *   **GenAI Integration**: Uses an LLM to analyze responses for clarity, relevance, completeness, and to provide suggestions for improvement and sample answers.
-    *   **Interaction**: Receives user responses (via `interview_flow.py`) and provides evaluation and feedback.
+Follow these instructions to set up and run the project locally.
 
-*   **`src/interview_flow.py`**:
-    *   **Responsibility**: Orchestrates the overall interview process in the terminal. It manages the sequence of operations: getting configuration, generating questions, taking user responses, triggering evaluation, and displaying feedback.
-    *   **Interaction**: Calls functions from `config_module.py`, `question_module.py`, and `evaluation_module.py`. Handles I/O with the user in the terminal.
+**Prerequisites:**
 
-*   **`src/main.py`**:
-    *   **Responsibility**: The main entry point for the terminal-based application.
-    *   **Interaction**: Initializes and starts the interview process by calling the `interview_flow.py` module.
+*   Python 3.8 or higher
+*   Git (for cloning the repository)
+*   Access to an LLM provider API and an API key.
 
-## Phase 2: Streamlit Frontend
+**Installation & Setup:**
 
-The second phase enhances the user experience by integrating a web-based user interface using Streamlit. This provides a more interactive and visually appealing way for users to engage with the application.
+1.  **Clone the repository:**
+    ```bash
+    git clone <repository-url>
+    cd interview-assist
+    ```
 
-### Web Interface Features
+2.  **Create and activate a virtual environment (recommended):**
+    ```bash
+    # For Windows
+    python -m venv venv
+    .\venv\Scripts\activate
 
-* **Welcome Page**: Introduction to the application and its features
-* **Setup Page**: Input form for job role, description, and other configuration options
-* **Interview Simulation**: Interactive Q&A with real-time feedback
-* **Results Summary**: Overall performance review and detailed feedback
+    # For macOS/Linux
+    python3 -m venv venv
+    source venv/bin/activate
+    ```
 
-### How the Streamlit App Works
+3.  **Install dependencies:**
+    Navigate to the project root directory (`interview-assist`) where `requirements.txt` is located.
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-1.  **Setup**: Enter your target job role, job description, and difficulty level.
-2.  **Interview**: Answer questions generated based on your configuration.
-3.  **Feedback**: Receive detailed evaluation and suggestions for improvement.
+4.  **Configure LLM API Keys:**
+    The application requires API keys for the configured Large Language Model provider (e.g., Mistral AI). This is typically managed by the `src/config_module.py`. You may need to:
+    *   Create a `.env` file in the project root and add your API key (e.g., `MISTRAL_API_KEY=your_api_key_here`), if `config_module.py` is set up to read from it.
+    *   Or, set environment variables directly in your system.
+    *   Refer to `src/config_module.py` (or its documentation if available) for specific instructions on API key setup.
 
-Your responses are evaluated using advanced AI to provide constructive feedback!
+5.  **Initialize the database (if required):**
+    The database schema is typically created automatically on the first run or via a setup script if provided. Check `src/database.py` for details.
 
-### Running the Streamlit App
+**Running the Application:**
 
-1. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
+1.  Ensure your virtual environment is activated and API keys are configured.
+2.  Navigate to the project root directory (`interview-assist`).
+3.  Run the Streamlit application:
+    ```bash
+    streamlit run src/streamlit_app.py
+    ```
+4.  Open your web browser and go to the local URL provided by Streamlit (usually `http://localhost:8501`).
 
-2. Set up your Mistral API key:
-   ```
-   export MISTRAL_API_KEY=your_api_key_here
-   ```
+## Running Tests
 
-3. Run the Streamlit application:
-   ```
-   streamlit run src/streamlit_app.py
-   ```
+The project uses Python's built-in `unittest` framework for testing. Tests are located in the `tests/` directory.
 
-4. Alternatively, use the main entry point:
-   ```
-   python src/main.py
-   ```
-   This will automatically detect and run the Streamlit app.
+**To run the tests:**
 
-## Testing
+1.  Ensure you have installed all dependencies, including any testing-specific ones (usually covered by `requirements.txt`).
+2.  Navigate to the project root directory (`interview-assist`).
+3.  Run the following command in your terminal:
+    ```bash
+    python -m unittest discover -s tests -v
+    ```
+    Or, for a more general discovery if your `tests` directory is structured as a package:
+    ```bash
+    python -m unittest discover -v
+    ```
+    This command will discover and execute all tests within the `tests` directory and provide verbose output.
 
-The project uses Python's unittest framework for testing modules and components. Tests are organized in the `tests` directory, mirroring the structure of the `src` directory.
-
-### Running Tests
-
-To run the test suite:
-
-```bash
-python3 -m unittest discover -v
-```
-
-This command will:
-- Automatically discover all test files (matching pattern `test_*.py`) in the project
-- Run all tests with verbose output (`-v`) showing each test case and its result
-- Display a summary of passed, failed, and error tests
-
-### Test Coverage
-
-The test suite includes:
-- **Unit tests**: Testing individual modules (`database.py`, `question_module.py`, `evaluation_module.py`, etc.)
-- **Integration tests**: Testing interactions between components
-- **Mock tests**: Using unittest.mock to simulate API responses and isolate components
-
-### Adding New Tests
-
-When adding new features, please include corresponding tests in the `tests` directory following the naming convention `test_*.py`.
+Tests cover core modules such as database interactions, question generation logic, and response evaluation, often using mocks for external dependencies like LLM APIs.
