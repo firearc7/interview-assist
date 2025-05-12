@@ -1,9 +1,7 @@
 """
 Orchestrates the terminal-based interview flow.
 """
-from src import config_module
-from src import question_module
-from src import evaluation_module
+import config_module, question_module, evaluation_module
 
 def start_interview():
     """

@@ -106,29 +106,30 @@ class TestStreamlitApp(unittest.TestCase):
         mock_st.session_state["feedback"] = []
         mock_st.session_state["overall_analysis"] = None
         
-        # Also patch the streamlit module within streamlit_app
-        # This is crucial to make sure any imports of streamlit within the app use our mock
-        patch("src.streamlit_app.st", mock_st).start()
+        # MODIFIED: First import the streamlit_app module and then patch st
+        # This avoids the attribute lookup on src module
+        import src.streamlit_app as app_module
+        self.streamlit_app = app_module
         
-        # Import the module here after patching to ensure it uses our mocks
-        global streamlit_app
-        from src import streamlit_app
+        # Patch st in the already imported module
+        patcher = patch.object(app_module, 'st', mock_st)
+        patcher.start()
+        self.addCleanup(patcher.stop)
                 
     def tearDown(self):
-        patch.stopall()
+        # All patchers added with addCleanup will be automatically stopped
+        pass
 
     @patch('src.streamlit_app.display_welcome_page')
     def test_main_routing_welcome(self, mock_display_welcome):
         mock_st.session_state["page"] = "welcome"
-        from src.streamlit_app import main
-        main()
+        self.streamlit_app.main()  # Use the saved module reference
         mock_display_welcome.assert_called_once()
 
     @patch('src.streamlit_app.display_login_page')
     def test_main_routing_login(self, mock_display_login):
         mock_st.session_state["page"] = "login"
-        from src.streamlit_app import main
-        main()
+        self.streamlit_app.main()  # Use the saved module reference
         mock_display_login.assert_called_once()
     
     # Test initial session state setup in main()
@@ -138,8 +139,7 @@ class TestStreamlitApp(unittest.TestCase):
         
         # Mock main functions to prevent execution
         with patch('src.streamlit_app.display_welcome_page'):
-            from src.streamlit_app import main
-            main()
+            self.streamlit_app.main()  # Use the saved module reference
             
         # Test only the initialization part
         self.assertEqual(mock_st.session_state["page"], "welcome")
@@ -152,8 +152,7 @@ class TestStreamlitApp(unittest.TestCase):
         # Set up a specific side effect for this test
         mock_st.button.side_effect = lambda label, key=None, **kwargs: key == "nav_dashboard"
 
-        from src.streamlit_app import display_navbar
-        display_navbar()
+        self.streamlit_app.display_navbar()  # Use the saved module reference
         
         mock_st.button.assert_any_call("🏠 Dashboard", key="nav_dashboard")
 
@@ -162,8 +161,7 @@ class TestStreamlitApp(unittest.TestCase):
         # Set up a specific side effect for this test only
         mock_st.button.side_effect = lambda label, key=None, **kwargs: key == "nav_logout"
 
-        from src.streamlit_app import display_navbar
-        display_navbar()
+        self.streamlit_app.display_navbar()  # Use the saved module reference
         
         mock_st.button.assert_any_call("🚪 Logout", key="nav_logout")
 
@@ -182,8 +180,7 @@ class TestStreamlitApp(unittest.TestCase):
             
         mock_st.button.side_effect = button_side_effect
 
-        from src.streamlit_app import display_welcome_page
-        display_welcome_page(mock_go_to_setup, MagicMock(), MagicMock(), mock_go_to_dashboard)
+        self.streamlit_app.display_welcome_page(mock_go_to_setup, MagicMock(), MagicMock(), mock_go_to_dashboard)
         
         mock_st.button.assert_any_call("Start Interview Preparation", on_click=mock_go_to_setup, use_container_width=True)
         mock_st.button.assert_any_call("View Interview History", on_click=mock_go_to_dashboard, use_container_width=True)
@@ -198,8 +195,7 @@ class TestStreamlitApp(unittest.TestCase):
         mock_st.button.side_effect = None
         mock_st.button.return_value = False
 
-        from src.streamlit_app import display_welcome_page
-        display_welcome_page(MagicMock(), mock_go_to_login, mock_go_to_signup, MagicMock())
+        self.streamlit_app.display_welcome_page(MagicMock(), mock_go_to_login, mock_go_to_signup, MagicMock())
         
         mock_st.button.assert_any_call("Login", on_click=mock_go_to_login, use_container_width=True)
         mock_st.button.assert_any_call("Sign Up", on_click=mock_go_to_signup, use_container_width=True)
@@ -217,8 +213,7 @@ class TestStreamlitApp(unittest.TestCase):
         mock_validate_user.return_value = {"id": 1, "username": "testuser"}
         mock_go_to_dashboard = MagicMock()
 
-        from src.streamlit_app import display_login_page
-        display_login_page(mock_go_to_dashboard)
+        self.streamlit_app.display_login_page(mock_go_to_dashboard)
 
         mock_validate_user.assert_called_with("testuser", "password")
         self.assertEqual(mock_st.session_state["user"], {"id": 1, "username": "testuser"})
@@ -241,8 +236,7 @@ class TestStreamlitApp(unittest.TestCase):
         mock_validate_user.return_value = None
         mock_go_to_dashboard = MagicMock()
 
-        from src.streamlit_app import display_login_page
-        display_login_page(mock_go_to_dashboard)
+        self.streamlit_app.display_login_page(mock_go_to_dashboard)
         
         mock_st.error.assert_called_once_with("Invalid username or password")
         mock_go_to_dashboard.assert_not_called()
@@ -259,8 +253,7 @@ class TestStreamlitApp(unittest.TestCase):
         mock_st.button.side_effect = None  
         mock_st.button.side_effect = lambda label, **kwargs: label == "Sign Up"
 
-        from src.streamlit_app import display_login_page
-        display_login_page(MagicMock())
+        self.streamlit_app.display_login_page(MagicMock())
         
         self.assertEqual(mock_st.session_state["page"], "signup")
         mock_st.rerun.assert_called()
@@ -300,8 +293,7 @@ class TestStreamlitApp(unittest.TestCase):
         mock_st.button.side_effect = None
         mock_st.button.return_value = True
 
-        from src.streamlit_app import display_setup_page
-        display_setup_page(mock_go_to_interview)
+        self.streamlit_app.display_setup_page(mock_go_to_interview)
 
         # Check expected behavior
         self.assertEqual(mock_st.session_state["interview_config"]["job_role"], "Job Role")

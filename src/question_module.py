@@ -1,7 +1,7 @@
 """
 Generates interview questions based on configuration using GenAI.
 """
-from src import genai_client # Import the new client
+import genai_client # Import the new client
 
 def parse_questions_from_text(text_response):
     """
