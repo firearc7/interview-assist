@@ -1,10 +1,27 @@
 """
-Evaluates user responses and provides feedback using GenAI.
+Module for evaluating interview responses.
 """
 import json
+import os
+import sys
 
-# Placeholder for GenAI integration
-from genai_client import generate_text # Adjusted import
+# Fix imports to work whether the file is imported as a module or run directly
+try:
+    # Try relative import (when imported as part of package)
+    from .genai_client import generate_text
+except ImportError:
+    # Fallback to direct import (when run as script)
+    import genai_client
+    generate_text = genai_client.generate_text
+    # If that fails, try to import from the same directory
+    if 'genai_client' not in sys.modules:
+        # Add the parent directory to sys.path if needed
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        if current_dir not in sys.path:
+            sys.path.insert(0, current_dir)
+        # Try again with direct import
+        import genai_client
+        generate_text = genai_client.generate_text
 
 def parse_feedback_from_text(text_feedback):
     """

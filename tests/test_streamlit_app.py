@@ -106,13 +106,12 @@ class TestStreamlitApp(unittest.TestCase):
         mock_st.session_state["feedback"] = []
         mock_st.session_state["overall_analysis"] = None
         
-        # MODIFIED: First import the streamlit_app module and then patch st
-        # This avoids the attribute lookup on src module
-        import src.streamlit_app as app_module
-        self.streamlit_app = app_module
+        # Import the streamlit_app module from src package
+        from src import streamlit_app
+        self.streamlit_app = streamlit_app
         
         # Patch st in the already imported module
-        patcher = patch.object(app_module, 'st', mock_st)
+        patcher = patch.object(streamlit_app, 'st', mock_st)
         patcher.start()
         self.addCleanup(patcher.stop)
                 

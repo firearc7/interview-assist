@@ -1,7 +1,27 @@
 """
-Generates interview questions based on configuration using GenAI.
+Module for generating interview questions.
 """
-import genai_client # Import the new client
+import re
+import sys
+import os
+
+# Handle imports regardless of how the module is run
+try:
+    # Try relative import (when imported as part of package)
+    from .genai_client import generate_text
+except ImportError:
+    # Fallback to direct import (when run as script)
+    import genai_client
+    generate_text = genai_client.generate_text
+    # If that fails, try to import from the same directory
+    if 'genai_client' not in sys.modules:
+        # Add the parent directory to sys.path if needed
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        if current_dir not in sys.path:
+            sys.path.insert(0, current_dir)
+        # Try again with direct import
+        import genai_client
+        generate_text = genai_client.generate_text
 
 def parse_questions_from_text(text_response):
     """
@@ -53,7 +73,7 @@ def generate_questions(config, num_questions=5):
     
     messages = [{"role": "user", "content": prompt_content}]
     
-    generated_text = genai_client.generate_text(messages)
+    generated_text = generate_text(messages)
     
     if generated_text:
         questions = parse_questions_from_text(generated_text)

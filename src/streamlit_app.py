@@ -2,9 +2,30 @@
 Streamlit frontend for the AI Interview Simulator.
 """
 import streamlit as st
-import config_module, question_module, evaluation_module, database
+import sys
+import os
 import json
 from datetime import datetime
+
+# Fix imports to work whether the file is imported as a module or run directly
+try:
+    # When imported as part of the src package
+    from . import config_module
+    from . import question_module
+    from . import evaluation_module
+    from . import database
+except ImportError:
+    # When run as a script or imported directly
+    # Add current directory to sys.path if not already there
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    if current_dir not in sys.path:
+        sys.path.insert(0, current_dir)
+    
+    # Direct imports
+    import config_module
+    import question_module
+    import evaluation_module
+    import database
 
 def main():
     # Set up the basic app configuration

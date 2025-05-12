@@ -1,5 +1,11 @@
 import unittest
 from unittest.mock import patch
+import sys
+import os
+
+# Add src to sys.path to allow direct import of src modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src import question_module
 
 class TestQuestionModule(unittest.TestCase):
@@ -30,7 +36,7 @@ class TestQuestionModule(unittest.TestCase):
         expected_empty_lines = ["Q1", "Q2"]
         self.assertEqual(question_module.parse_questions_from_text(text_response_with_empty_lines), expected_empty_lines)
 
-    @patch('src.question_module.genai_client.generate_text')
+    @patch('src.question_module.generate_text')  # Updated patch path
     def test_generate_questions_success(self, mock_generate_text):
         mock_generate_text.return_value = "1. Mocked Question 1?\n2. Mocked Question 2?"
         config = {"job_role": "Tester", "difficulty": "Easy", "job_description": "Test software."}
@@ -39,7 +45,7 @@ class TestQuestionModule(unittest.TestCase):
         self.assertEqual(questions[0], "Mocked Question 1?")
         mock_generate_text.assert_called_once()
 
-    @patch('src.question_module.genai_client.generate_text')
+    @patch('src.question_module.generate_text')  # Updated patch path
     def test_generate_questions_api_failure_fallback(self, mock_generate_text):
         mock_generate_text.return_value = None # Simulate API failure
         config = {"job_role": "Software Engineer", "difficulty": "Medium", "job_description": "Dev"}
@@ -48,7 +54,7 @@ class TestQuestionModule(unittest.TestCase):
         # Check if it's using fallback questions
         self.assertIn("Tell me about a challenging project you worked on.", questions)
 
-    @patch('src.question_module.genai_client.generate_text')
+    @patch('src.question_module.generate_text')  # Updated patch path
     def test_generate_questions_parsing_failure_fallback(self, mock_generate_text):
         # To truly test parsing failure leading to fallback, parse_questions_from_text should return []
         # Let's mock parse_questions_from_text for this specific scenario
@@ -63,7 +69,7 @@ class TestQuestionModule(unittest.TestCase):
             # Check if it's using fallback questions
             self.assertIn(f"What interests you about the {config.get('job_role')} role?", questions)
 
-    @patch('src.question_module.genai_client.generate_text')
+    @patch('src.question_module.generate_text')  # Updated patch path
     def test_generate_questions_num_questions_respected(self, mock_generate_text):
         mock_generate_text.return_value = "1. Q1\n2. Q2\n3. Q3\n4. Q4\n5. Q5"
         config = {"job_role": "Developer", "difficulty": "Medium", "job_description": "Code."}

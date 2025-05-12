@@ -1,6 +1,12 @@
 import unittest
 from unittest.mock import patch, call
-from src import interview_flow # Assuming interview_flow.py is in src
+import sys
+import os
+
+# Add src to sys.path to allow direct import of src modules
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from src import interview_flow
 
 class TestInterviewFlow(unittest.TestCase):
 

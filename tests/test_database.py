@@ -3,6 +3,11 @@ from unittest.mock import patch, MagicMock, ANY
 import sqlite3
 import os
 import json
+import sys
+
+# Add src to sys.path if not already there
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from src import database
 
 # Use real in-memory database for tests with shared URI
