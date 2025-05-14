@@ -95,3 +95,23 @@ The project uses Python's built-in `unittest` framework for testing. Tests are l
     This command will discover and execute all tests within the `tests` directory and provide verbose output.
 
 Tests cover core modules such as database interactions, question generation logic, and response evaluation, often using mocks for external dependencies like LLM APIs.
+
+## Encoder Model Finetuning (DistilBERT)
+
+To finetune the encoder (DistilBERT) for interview type/difficulty classification:
+
+### Prerequisites
+- Python 3.8 or higher
+- All dependencies installed (see Installation & Setup above)
+
+### Running the Encoder Finetuning Script
+
+1. Ensure you are in the project root directory and your virtual environment is activated.
+2. Make sure `encoder_finetune.py` and `encoder_dataset.csv` are present in the directory.
+3. Run the following command:
+   ```bash
+   python encoder_finetune.py
+   ```
+4. After training, evaluation results will be saved in `encoder_eval_results.txt`.
+
+The script will use the data in `encoder_dataset.csv` to train and evaluate a DistilBERT model for classifying interview types based on job role, description, and hardness.

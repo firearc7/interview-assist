@@ -1,0 +1,24 @@
+intent,question
+company_info,What does your company do?
+company_info,Can you tell me about the company?
+company_info,What is the mission of the company?
+job_requirements,What are the requirements for this job?
+job_requirements,What skills do I need for this position?
+job_requirements,What qualifications are needed?
+interview_tips,Do you have any interview tips?
+interview_tips,How can I prepare for the interview?
+interview_tips,What should I expect in the interview?
+process,What is the interview process like?
+process,How many rounds are there in the interview?
+process,What happens after I apply?
+
+job_role,job_description,hardness,interview_type
+Software Engineer,Develop backend APIs,Easy,Technical - Easy
+Software Engineer,Develop backend APIs,Medium,Technical - Medium
+Software Engineer,Develop backend APIs,Hard,Technical - Hard
+Product Manager,Lead product vision,Easy,Product - Easy
+Product Manager,Lead product vision,Hard,Product - Hard
+Data Scientist,Analyze data trends,Medium,Data - Medium
+Data Scientist,Analyze data trends,Hard,Data - Hard
+UX Designer,Design user interfaces,Easy,Design - Easy
+UX Designer,Design user interfaces,Medium,Design - Medium

@@ -1,0 +1,16 @@
+{"question": "What does your company do?", "answer": "Our company specializes in developing innovative AI solutions for businesses across various industries."}
+{"question": "What are the requirements for this job?", "answer": "The requirements include a bachelor's degree in computer science and experience with Python and machine learning frameworks."}
+{"question": "Do you have any interview tips?", "answer": "Be sure to research the company, review the job description, and practice common interview questions."}
+{"question": "What is the interview process like?", "answer": "The process typically involves an initial phone screen, a technical assessment, and a final interview with the team."}
+{"question": "How can I prepare for the interview?", "answer": "Prepare by reviewing your resume, practicing technical questions, and learning about our company culture."}
+{"question": "What is the mission of the company?", "answer": "Our mission is to empower organizations through accessible and effective artificial intelligence."}
+{"question": "What skills do I need for this position?", "answer": "Key skills include programming, problem-solving, and strong communication abilities."}
+{"question": "How many rounds are there in the interview?", "answer": "There are usually three rounds: HR screening, technical interview, and a final round with leadership."}
+{"question": "What should I expect in the interview?", "answer": "Expect a mix of technical and behavioral questions, as well as a discussion about your experience and goals."}
+{"question": "What happens after I apply?", "answer": "After you apply, our team will review your application and contact you if you are shortlisted for the next steps."}
+{"job_role": "Software Engineer", "job_description": "Develop backend APIs", "hardness": "Easy", "num_questions": 3, "questions": ["What is REST and how is it used in backend development?", "Explain the difference between GET and POST methods.", "How would you handle errors in an API?"]}
+{"job_role": "Software Engineer", "job_description": "Develop backend APIs", "hardness": "Hard", "num_questions": 3, "questions": ["Describe how you would design a scalable microservices architecture.", "How do you ensure data consistency across distributed systems?", "Explain the CAP theorem and its implications for backend systems."]}
+{"job_role": "Product Manager", "job_description": "Lead product vision", "hardness": "Easy", "num_questions": 2, "questions": ["How do you prioritize product features?", "Describe a time you gathered user feedback to improve a product."]}
+{"job_role": "Product Manager", "job_description": "Lead product vision", "hardness": "Hard", "num_questions": 2, "questions": ["How would you handle conflicting stakeholder requirements?", "Describe your approach to building a product roadmap for a new market."]}
+{"job_role": "Data Scientist", "job_description": "Analyze data trends", "hardness": "Medium", "num_questions": 2, "questions": ["What is feature engineering and why is it important?", "How do you handle missing data in a dataset?"]}
+{"job_role": "UX Designer", "job_description": "Design user interfaces", "hardness": "Medium", "num_questions": 2, "questions": ["How do you conduct usability testing?", "Describe your process for creating wireframes."]}
