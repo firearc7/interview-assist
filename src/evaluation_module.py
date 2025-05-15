@@ -4,6 +4,7 @@ Module for evaluating interview responses.
 import json
 import os
 import sys
+# import torch
 
 # Fix imports to work whether the file is imported as a module or run directly
 try:
@@ -22,6 +23,46 @@ except ImportError:
         # Try again with direct import
         import genai_client
         generate_text = genai_client.generate_text
+
+# # --- Encoder-based Classifier Integration ---
+# try:
+#     from transformers import DistilBertTokenizer, DistilBertForSequenceClassification
+#     MODEL_PATH = os.path.join(os.path.dirname(__file__), "encoder_finetune", "checkpoint")
+#     _tokenizer = DistilBertTokenizer.from_pretrained(MODEL_PATH)
+#     _model = DistilBertForSequenceClassification.from_pretrained(MODEL_PATH)
+#     _model.eval()
+#     _label_map = {0: "Needs Improvement", 1: "Adequate", 2: "Excellent"}
+# except Exception as e:
+#     _tokenizer = None
+#     _model = None
+#     _label_map = {0: "Needs Improvement", 1: "Adequate", 2: "Excellent"}
+#     print(f"[EncoderClassifier] Warning: Could not load model/tokenizer: {e}")
+
+# def classify_answer_quality(answer: str) -> str:
+#     """
+#     Classifies the quality of an interview answer using a fine-tuned DistilBERT model.
+
+#     Args:
+#         answer (str): The user's answer to classify.
+
+#     Returns:
+#         str: One of "Excellent", "Adequate", or "Needs Improvement".
+#     """
+#     if not answer or not isinstance(answer, str) or not answer.strip():
+#         return "Needs Improvement"
+#     if _model is None or _tokenizer is None:
+#         return "Adequate"  # fallback if model not loaded
+
+#     try:
+#         inputs = _tokenizer(answer, return_tensors="pt", truncation=True, padding=True, max_length=256)
+#         with torch.no_grad():
+#             outputs = _model(**inputs)
+#             logits = outputs.logits
+#             pred = torch.argmax(logits, dim=1).item()
+#         return _label_map.get(pred, "Adequate")
+#     except Exception as e:
+#         print(f"[EncoderClassifier] Error during classification: {e}")
+#         return "Adequate"
 
 def parse_feedback_from_text(text_feedback):
     """
