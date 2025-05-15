@@ -40,8 +40,7 @@ def main():
         save_steps=50,
         save_total_limit=1,
         logging_steps=10,
-        learning_rate=2e-5,
-        evaluation_strategy="no"
+        learning_rate=2e-5
     )
     trainer = Trainer(
         model=model,
