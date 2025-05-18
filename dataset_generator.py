@@ -65,6 +65,62 @@ def generate_prompt_for_answers(question, quality):
     
     Return only the answer without any introductions or explanations about its quality."""
 
+def generate_prompt_for_gold_answer(question, answer, quality):
+    """Generate prompt for gold standard answer based on the question, original answer, and quality"""
+    
+    if quality == "excellent":
+        return f"""For the following software engineering interview question:
+        
+        "{question}"
+        
+        Given this excellent answer from a candidate:
+        
+        "{answer}"
+        
+        Provide a slightly refined gold standard version of this answer that maintains the same structure and content, 
+        but with minimal improvements to clarity and precision. Keep the answer similarly excellent but 
+        with subtle enhancements. Maintain a professional tone but make it slightly more polished than the original.
+        
+        Return only the gold standard answer without any explanations."""
+    
+    elif quality == "adequate":
+        return f"""For the following software engineering interview question:
+        
+        "{question}"
+        
+        Given this adequate answer from a candidate:
+        
+        "{answer}"
+        
+        Transform this into a gold standard excellent answer. Enhance it by:
+        1. Adding more technical depth and detailed explanations
+        2. Incorporating relevant examples and best practices
+        3. Improving the structure and flow
+        4. Filling in missing information
+        5. Maintaining the core ideas from the original answer
+        
+        Make it comprehensive and technically precise while still being clear and concise.
+        Return only the gold standard answer without any explanations."""
+    
+    else:  # insufficient
+        return f"""For the following software engineering interview question:
+        
+        "{question}"
+        
+        Given this insufficient answer from a candidate:
+        
+        "{answer}"
+        
+        Create a gold standard answer that:
+        1. Corrects any misconceptions or inaccuracies in the original
+        2. Develops the same core topic areas but with proper technical depth
+        3. Provides clarity where the original was vague
+        4. Adds necessary details, examples, and best practices
+        5. Maintains the same general approach but with substantially improved quality
+        
+        Transform the answer into a comprehensive, well-structured response that would be considered excellent.
+        Return only the gold standard answer without any explanations."""
+
 def call_mistral_api(prompt, max_tokens=500):
     """Call Mistral API with the given prompt"""
     headers = {
@@ -131,7 +187,7 @@ def call_mistral_api(prompt, max_tokens=500):
     return None
 
 def generate_sample(topic, quality, asked_questions=None):
-    """Generate a complete sample (question, answer, quality)"""
+    """Generate a complete sample (question, answer, quality, and gold answer)"""
     try:
         # Generate question based on topic
         max_attempts = 3  # Maximum attempts to generate a unique question
@@ -157,10 +213,15 @@ def generate_sample(topic, quality, asked_questions=None):
         answer_prompt = generate_prompt_for_answers(question, quality)
         answer = call_mistral_api(answer_prompt, max_tokens=800)
         
+        # Generate gold standard answer based on the question, answer, and quality
+        gold_prompt = generate_prompt_for_gold_answer(question, answer, quality)
+        gold_answer = call_mistral_api(gold_prompt, max_tokens=1000)
+        
         return {
             "question": question,
             "answer": answer,
-            "quality": quality
+            "quality": quality,
+            "gold_answer": gold_answer
         }
     except Exception as e:
         print(f"Error generating sample for {topic}, {quality}: {str(e)}")
@@ -212,12 +273,11 @@ def main():
                 if sample:
                     dataset.append(sample)
                     completed += 1
-                    
                     # Save checkpoint periodically
                     if completed % checkpoint_interval == 0:
                         print(f"\nSaving checkpoint ({completed}/{TOTAL_SAMPLES})...")
                         with open(checkpoint_file, 'w', newline='', encoding='utf-8') as file:
-                            writer = csv.DictWriter(file, fieldnames=["question", "answer", "quality"])
+                            writer = csv.DictWriter(file, fieldnames=["question", "answer", "quality", "gold_answer"])
                             writer.writeheader()
                             writer.writerows(dataset)
                 else:
@@ -232,7 +292,7 @@ def main():
     # Write to CSV
     print(f"Writing {len(dataset)} samples to {OUTPUT_FILE}...")
     with open(OUTPUT_FILE, 'w', newline='', encoding='utf-8') as file:
-        writer = csv.DictWriter(file, fieldnames=["question", "answer", "quality"])
+        writer = csv.DictWriter(file, fieldnames=["question", "answer", "quality", "gold_answer"])
         writer.writeheader()
         writer.writerows(dataset)
     
