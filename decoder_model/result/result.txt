@@ -1,0 +1,29 @@
+OVERALL PERFORMANCE:
+Metric     | Tuned Model | Base Model | Improvement
+-----------|-------------|------------|-------------
+rouge-1    | 0.6295      | 0.3182     | +97.84%
+rouge-l    | 0.6171      | 0.2999     | +105.80%
+bleu       | 0.3929      | 0.0503     | +680.60%
+
+PERFORMANCE BY ANSWER QUALITY:
+
+EXCELLENT:
+Metric     | Tuned Model | Base Model | Improvement
+-----------|-------------|------------|-------------
+rouge-1    | 0.8346      | 0.2774     | +200.83%
+rouge-l    | 0.8289      | 0.2559     | +223.86%
+bleu       | 0.6744      | 0.0272     | +2377.78%
+
+ADEQUATE:
+Metric     | Tuned Model | Base Model | Improvement
+-----------|-------------|------------|-------------
+rouge-1    | 0.4727      | 0.3456     | +36.78%
+rouge-l    | 0.4543      | 0.3279     | +38.55%
+bleu       | 0.1740      | 0.0578     | +200.89%
+
+INSUFFICIENT:
+Metric     | Tuned Model | Base Model | Improvement
+-----------|-------------|------------|-------------
+rouge-1    | 0.4545      | 0.3520     | +29.12%
+rouge-l    | 0.4371      | 0.3373     | +29.57%
+bleu       | 0.1550      | 0.0748     | +107.09%
