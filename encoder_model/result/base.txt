@@ -1,0 +1,16 @@
+Base model accuracy: 0.3500
+
+              precision    recall  f1-score   support
+              
+    adequate       0.00      0.00      0.00        25
+   excellent       0.00      0.00      0.00        14
+insufficient       0.36      1.00      0.53        21
+
+    accuracy                           0.35        60
+   macro avg       0.12      0.33      0.18        60
+weighted avg       0.12      0.35      0.18        60
+
+Base model confusion matrix:
+[[ 0  1 24]
+ [ 0  0 14]
+ [ 0  0 21]]
