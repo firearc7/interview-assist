@@ -30,8 +30,8 @@ def main():
     print(f"Dataset loaded with {len(df)} entries")
     print("Columns:", df.columns.tolist())
 
-    # Split the dataset into training (80%) and test (20%) sets
-    train_df, test_df = train_test_split(df, test_size=0.2, random_state=42)
+    # Split the dataset into training (90%) and test (10%) sets
+    train_df, test_df = train_test_split(df, test_size=0.1, random_state=42)
     print(f"Split dataset into {len(train_df)} training samples and {len(test_df)} test samples")
 
     # Create input-output pairs for tuning
